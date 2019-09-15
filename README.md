@@ -4,7 +4,7 @@ CNN-GRU and CNN-LSTM has been used for personal identification from different af
 For more details, please refer to: https://ieeexplore.ieee.org/document/8745473
 
 
-## Code descriptions (To be updated) ##
+## Code Description (To be updated) ##
 Data located locally on Vistec server at /Documents/gong/DEAP (10.204.142.25:/Documents/gong/DEAP/)
 Required Files
 X_0.npy,X_1.npy,X_2.npy,X_3.npy,X_4.npy
