@@ -4,6 +4,15 @@ CNN-GRU and CNN-LSTM has been used for personal identification from different af
 For more details, please refer to: https://ieeexplore.ieee.org/document/8745473
 
 
+## Environment ##
+- CUDA toolkit 10.0 and CuDNN v7
+- Python 3.6.8
+- tensorflow-gpu (1.14)
+- matplotlib (1.5.3)
+- scikit-learn (0.21.3)
+- numpy (1.14.5)
+- pandas (0.18.1)
+
 ## Code Description (To be updated) ##
 Data located locally on Vistec server at /Documents/gong/DEAP (10.204.142.25:/Documents/gong/DEAP/)
 Required Files
@@ -22,3 +31,4 @@ Following citation format can be used for BibTex:
     pages={1-1},
     doi={10.1109/TCDS.2019.2924648},
     }
+
