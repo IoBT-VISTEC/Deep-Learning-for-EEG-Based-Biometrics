@@ -5,22 +5,24 @@
 
 
 import numpy as np
-from sklearn.cross_validation import StratifiedKFold
+##from sklearn.cross_validation import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 import glob
 import numpy as np
 import os,sys 
 import random
-import keras
-from keras.models import Sequential, load_model
-from keras.layers import Activation,Dense,Dropout,TimeDistributed,Reshape,Flatten,GRU, Conv2D, LSTM 
-from keras.layers.normalization import BatchNormalization
-from keras.callbacks import CSVLogger, ModelCheckpoint, ReduceLROnPlateau
+from tensorflow import keras
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Activation,Dense,Dropout,TimeDistributed,Reshape,Flatten,GRU, Conv2D, LSTM 
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint, ReduceLROnPlateau
 from scipy import stats 
 from time import time
 
 
 # In[4]:
 
+os.environ["CUDA_VISIBLE_DEVICES"]='1'
 
 '''
 ------ Variable Deaclaration ------
@@ -123,8 +125,8 @@ def training(X_tr,Y_tr,X_v,Y_v):
     d = np.min([1.0/temp for temp in weight])
     weight = [1.0/temp/d for temp in weight]
 
-    rmsprop = keras.optimizers.rmsprop(lr=0.003, rho=0.9, epsilon=1e-08, decay=0.0)
-    adam = keras.optimizers.adam(lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+    rmsprop = keras.optimizers.RMSprop(lr=0.003, rho=0.9, epsilon=1e-08, decay=0.0)
+    adam = keras.optimizers.Adam(lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
     sgd = keras.optimizers.SGD(lr=0.01, momentum=0.0, decay=1e-6)
     # OBS rmsprop and adam cant get loss past 2, while sgd got as low as 0.2
   
@@ -136,7 +138,7 @@ def training(X_tr,Y_tr,X_v,Y_v):
     start = time()
 
     model.fit_generator(generator(X_tr,Y_tr,256),steps_per_epoch= 4 ,
-                        epochs=epochs,validation_data=([X_v,Y_v]),
+                        epochs=epochs,validation_data=(X_v,Y_v),
                         callbacks=[checkpointer,csv_logger,reduce_lr],
                         max_queue_size=3,
                         use_multiprocessing=True,class_weight=weight)   
@@ -179,7 +181,7 @@ step=128
 #take X_test,y_test,path_to hdf5 file(string), yields loss and acc,model
 def testing(X_te, Y_te, w_path):
     model = load_model(w_path)
-    rmsprop = keras.optimizers.rmsprop(lr=0.003, rho=0.9, epsilon=1e-08, decay=0.0)
+    rmsprop = keras.optimizers.RMSprop(lr=0.003, rho=0.9, epsilon=1e-08, decay=0.0)
     model.compile(loss='sparse_categorical_crossentropy', optimizer= rmsprop, metrics=['sparse_categorical_accuracy'])
     loss,acc = model.evaluate(X_te, Y_te, batch_size=256, verbose=1, sample_weight=None)
     print('Test loss:', loss)
@@ -283,8 +285,9 @@ for band in range(1):
         y = np.repeat(np.arange(sum(Y_cut[classes])),5)
         #y = np.repeat(np.arange(sum(Y_cut[classes])),30)
         np.random.seed(0) #reset random seed for each band, each class
-        skf = StratifiedKFold(y,n_folds=5, shuffle=True, random_state=None)
-        mylist = np.array(list(skf))
+        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=None)
+        #skf = StratifiedKFold(y,n_folds=5, shuffle=True, random_state=None)
+        mylist = np.array(list(skf.split(x_2d,y)))
         kArray = mylist[:,1]
         for k in range(5):
             train_index = np.concatenate([kArray[i] if i!=k else [] for i in range(5)])
